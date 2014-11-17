@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="SSL_Security_Rules"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+   <description>SSL Security Rules for PMD. These rules are meant to guide Android developers in the correct direction when developing HTTPS calls.</description>
+
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="AllowAllHostnameVerifier used, this is not a secure connection"
+         name="AllowAllHostnames"
+         typeResolution="true">
+      		<description>
+			public TrustAllSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+  			super(null);
+  			try {
+    			SSLContext sslcontext=SSLContext.getInstance("TLS");
+    			sslcontext.init(null,new TrustManager[]{new TrustAllManager()},null);
+    			factory=sslcontext.getSocketFactory();
+    			setHostnameVerifier(new AllowAllHostnameVerifier());  //super unsafe!
+  			}
+ 			catch (  Exception ex) {}
+			}
+		</description>
+      		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>//ClassOrInterfaceType[@Image='AllowAllHostnameVerifier']</value>
+         		</property>
+      		</properties>
+   	</rule>
+   
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Custom HostnameVerifier used; this is not safe for production use"
+         name="CustomHostnameVerifier"
+         typeResolution="true">
+      		<description>
+			tls = (StartTlsResponse) ctx.extendedOperation( new StartTlsRequest() );
+            		tls.setHostnameVerifier( hostnameVerifier ); //may lead to a potentially unsafe Verifier
+            		tls.negotiate( sslContext.getSocketFactory() )
+		</description>
+      		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>//PrimaryPrefix/Name[ends-with(@Image,'setHostnameVerifier')]</value>
+         		</property>
+      		</properties>
+   	</rule>
+   
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Custom SSLSocketFactory used"
+         name="CustomSSLSocketFactory"
+         typeResolution="true">
+      		<description>
+			SSLSocketFactory sf = new SSLSocketFactory(sslContext); //don't do this
+		</description>
+      		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>
+					//LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='SSLSocketFactory' ] and 
+					VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
+				</value>
+         		</property>
+      		</properties>
+   	</rule>
+
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Custom trust manager used. Remove from production"
+         name="CustomTrustManager"
+         typeResolution="true">
+      		<description>
+			TrustManager tm = new X509TrustManager() //Don't do this!
+		</description>
+     		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>
+					//LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='TrustManager' ] and 
+					VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
+				</value>
+         		</property>
+      		</properties>
+   	</rule>
+   
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Use HTTPS when possible"
+         name="HTTPSNotUsed"
+         typeResolution="true">
+      		<description>
+			connect('http://www.google.com');
+		</description>
+      		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>
+					//Literal[contains(@Image,'http://')]
+				</value>
+         		</property>
+      		</properties>
+   	</rule>
+
+	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Unsafe method SSL_set_verify_result used"
+         name="SSLSetVerifyResult"
+         typeResolution="true">
+      		<description>
+			SSL_set_verify_result(SSL, long verify_result) //don't do this
+		</description>
+      		<priority>3</priority>
+      		<properties>
+         		<property name="xpath">
+            			<value>//PrimaryPrefix/Name[contains(@Image,'SSL_set_verify_result')]</value>
+         		</property>
+      		</properties>
+   	</rule>
+</ruleset>
