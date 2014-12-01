@@ -88,8 +88,8 @@
    
 	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
-         message="Use HTTPS when possible"
-         name="HTTPSNotUsed"
+         message="Try to shift services to use HTTPS"
+         name="MoveToHTTP"
          typeResolution="true">
       		<description>
 			connect('http://www.google.com');
@@ -103,6 +103,17 @@
          		</property>
       		</properties>
    	</rule>
+
+      <rule class="net.sourceforge.pmd.lang.java.rule.sunsecure.UseHTTPSWhenPossibleRule" deprecated="false" dfa="false"
+         language="java"
+         message="Use HTTPS when possible"
+         name="HTTPSCouldBeUsed"         
+         typeResolution="true">
+            <description>
+         connect('http://www.google.com');
+      </description>
+            <priority>3</priority>
+   </rule>   
 
 	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
