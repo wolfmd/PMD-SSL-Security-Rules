@@ -4,7 +4,11 @@
 package net.sourceforge.pmd.lang.java.rule.sunsecure;
 
 import java.util.regex.Pattern;
-import net.sourceforge.pmd.lang.java.*
+import net.sourceforge.pmd.*;
+import net.sourceforge.pmd.lang.java.ast.ASTLiteral;
+import net.sourceforge.pmd.lang.java.rule.regex.RegexHelper;
+import net.sourceforge.pmd.lang.rule.properties.StringProperty;
+import net.sourceforge.pmd.lang.java.rule.AbstractJavaRule;
 import java.net.*;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -34,8 +38,7 @@ public class UseHTTPSWhenPossibleRule extends AbstractJavaRule {
 		if ( image != null && image.length() > 0 && image.contains("http://") ) {
 			String new_image = image.replace("http","https");
 			new_image = new_image.replace("\"","");
-
-		 	URL url = null;
+			URL url = null;
 		 	URI uri = null;
 	     	
 	     	 	try { 

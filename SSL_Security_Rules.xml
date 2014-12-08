@@ -22,7 +22,7 @@
  			catch (  Exception ex) {}
 			}
 		</description>
-      		<priority>3</priority>
+      		<priority>5</priority>
       		<properties>
          		<property name="xpath">
             			<value>//ClassOrInterfaceType[@Image='AllowAllHostnameVerifier']</value>
@@ -40,7 +40,7 @@
             		tls.setHostnameVerifier( hostnameVerifier ); //may lead to a potentially unsafe Verifier
             		tls.negotiate( sslContext.getSocketFactory() )
 		</description>
-      		<priority>3</priority>
+      		<priority>4</priority>
       		<properties>
          		<property name="xpath">
             			<value>//PrimaryPrefix/Name[ends-with(@Image,'setHostnameVerifier')]</value>
@@ -56,7 +56,7 @@
       		<description>
 			SSLSocketFactory sf = new SSLSocketFactory(sslContext); //don't do this
 		</description>
-      		<priority>3</priority>
+      		<priority>4</priority>
       		<properties>
          		<property name="xpath">
             			<value>
@@ -75,7 +75,7 @@
       		<description>
 			TrustManager tm = new X509TrustManager() //Don't do this!
 		</description>
-     		<priority>3</priority>
+     		<priority>4</priority>
       		<properties>
          		<property name="xpath">
             			<value>
@@ -94,7 +94,7 @@
       		<description>
 			connect('http://www.google.com');
 		</description>
-      		<priority>3</priority>
+      		<priority>2</priority>
       		<properties>
          		<property name="xpath">
             			<value>
@@ -104,7 +104,7 @@
       		</properties>
    	</rule>
 
-      <rule class="net.sourceforge.pmd.lang.java.rule.sunsecure.UseHTTPSWhenPossibleRule" deprecated="false" dfa="false"
+   <rule class="net.sourceforge.pmd.lang.java.rule.sunsecure.UseHTTPSWhenPossibleRule" deprecated="false" dfa="false"
          language="java"
          message="Use HTTPS when possible"
          name="HTTPSCouldBeUsed"         
@@ -112,22 +112,110 @@
             <description>
          connect('http://www.google.com');
       </description>
-            <priority>3</priority>
-   </rule>   
+            <priority>4</priority>
+      </rule>   
 
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+   <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Unsafe method SSL_set_verify_result used"
          name="SSLSetVerifyResult"
          typeResolution="true">
-      		<description>
-			SSL_set_verify_result(SSL, long verify_result) //don't do this
-		</description>
-      		<priority>3</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>//PrimaryPrefix/Name[contains(@Image,'SSL_set_verify_result')]</value>
-         		</property>
-      		</properties>
-   	</rule>
+         <description>
+         SSL_set_verify_result(SSL, long verify_result) //don't do this
+         </description>
+         <priority>3</priority>
+         <properties>
+         <property name="xpath">
+         <value>//PrimaryPrefix/Name[contains(@Image,'SSL_set_verify_result')]</value>
+         </property>
+         </properties>
+   </rule>
+
+   <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="AllowAllHostnameVerifier used, this is not a secure connection"
+         name="AllowAllHostnames"
+         typeResolution="true">
+            <description>
+         public TrustAllSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+         super(null);
+         try {
+            SSLContext sslcontext=SSLContext.getInstance("TLS");
+            sslcontext.init(null,new TrustManager[]{new TrustAllManager()},null);
+            factory=sslcontext.getSocketFactory();
+            factory.setHostnameVerifier(org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+         }
+         catch (  Exception ex) {}
+         }
+      </description>
+            <priority>5</priority>
+            <properties>
+               <property name="xpath">
+                     <value>//Name[contains(@Image,'ALLOW_ALL_HOSTNAME_VERIFIER')]</value>
+               </property>
+            </properties>
+      </rule>
+
+   <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="Caught SSL or Certificate exception not reported"
+         name="EmptyCatchBlock(SSL)"
+         typeResolution="true">
+            <description>
+            public void doSomething() {
+       try {
+         SSLSocketFactory fis = new SSLSocketFactory(foobar);
+          } catch (SSLException ioe) {
+        // not good
+          }
+      </description>
+            <priority>3</priority>
+            <properties>
+               <property name="xpath">
+                  <value>
+                    //CatchStatement
+                   [count(Block/BlockStatement) = 0]
+                   [FormalParameter/Type/ReferenceType
+                     /ClassOrInterfaceType[@Image='CertificateException' or @Image='CertPathValidatorException' 
+                     or @Image='SSLException' or  @Image='SSLHandshakeException' 
+                     or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
+                     or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
+                     or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
+                     or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
+                   ]
+                  </value>
+               </property>
+            </properties>
+      </rule>
+
+      <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+         language="java"
+         message="SSLSocket created without proper hostname verification"
+         name="UnsafeHostnameVerification"
+         typeResolution="true">
+            <description>
+                SSLSocket socket = (SSLSocket) sf.createSocket("gmail.com", 443);
+               HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+
+               if (!hv.verify("mail.google.com", s)) {
+                //throw SSLException();
+               }
+      </description>
+            <priority>3</priority>
+            <properties>
+               <property name="xpath">
+                  <value>
+                   //Block[BlockStatement/LocalVariableDeclaration/Type/ReferenceType/ClassOrInterfaceType[@Image='SSLSocket'] 
+                     and (not(BlockStatement/LocalVariableDeclaration/VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/Name[contains(@Image, 'getDefaultHostnameVerifier')])
+                        or not(//ThrowStatement) 
+                        or (count(//ThrowStatement/Expression/PrimaryExpression/PrimarySuffix/ArgumentCount)=0))
+                     ]
+                  </value>
+               </property>
+            </properties>
+      </rule>
+
+
 </ruleset>
+
+
