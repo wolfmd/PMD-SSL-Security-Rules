@@ -94,7 +94,7 @@
          language="java"
          message="Try to shift services to use HTTPS. While this literal does not resolve to a website when entered as a URL, this connection can be made safer by moving servers and the 
                   applications which connect to them to an HTTPS Everywhere paradigm. HTTPS secures data from interception, sniffing, and surveillance of user data."
-         name="MoveToHTTP"
+         name="MoveToHTTPS"
          typeResolution="true">
       		<description>
 			connect('http://www.google.com');
@@ -170,16 +170,25 @@
             <properties>
                <property name="xpath">
                   <value>
-                    //CatchStatement
-                   [count(Block/BlockStatement) = 0]
-                   [FormalParameter/Type/ReferenceType
-                     /ClassOrInterfaceType[@Image='CertificateException' or @Image='CertPathValidatorException' 
-                     or @Image='SSLException' or  @Image='SSLHandshakeException' 
-                     or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
-                     or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
-                     or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
-                     or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
-                   ]
+                            //MethodDeclaration[NameList/Name[@Image='CertificateException' or @Image='CertPathValidatorException' 
+                                       or @Image='SSLException' or  @Image='SSLHandshakeException' 
+                                       or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
+                                       or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
+                                       or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
+                                       or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
+                                       and Block[count(BlockStatement) = 0]
+                                       or 
+                                       //CatchStatement
+                                     [count(Block/BlockStatement) = 0]
+                                     [FormalParameter/Type/ReferenceType
+                                       /ClassOrInterfaceType[@Image='CertificateException' or @Image='CertPathValidatorException' 
+                                       or @Image='SSLException' or  @Image='SSLHandshakeException' 
+                                       or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
+                                       or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
+                                       or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
+                                       or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
+                                      ]
+                           ]
                   </value>
                </property>
             </properties>

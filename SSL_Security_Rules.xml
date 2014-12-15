@@ -5,109 +5,109 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
    <description>SSL Security Rules for PMD. These rules are meant to guide Android developers in the correct direction when developing HTTPS calls.</description>
 
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+  <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="AllowAllHostnameVerifier used, this is not a secure connection. Any certificate received may in fact be from an attacker in between the user and server leaving the 
                   user vulnerable to data loss and surveillance. Read more: https://developer.android.com/training/articles/security-ssl.html#CommonHostnameProbs"
          name="AllowAllHostnames"
          typeResolution="true">
-      		<description>
-			public TrustAllSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
-  			super(null);
-  			try {
-    			SSLContext sslcontext=SSLContext.getInstance("TLS");
-    			sslcontext.init(null,new TrustManager[]{new TrustAllManager()},null);
-    			factory=sslcontext.getSocketFactory();
-    			setHostnameVerifier(new AllowAllHostnameVerifier());  //super unsafe!
-  			}
- 			catch (  Exception ex) {}
-			}
-		</description>
-      		<priority>2</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>//ClassOrInterfaceType[@Image='AllowAllHostnameVerifier']</value>
-         		</property>
-      		</properties>
-   	</rule>
+          <description>
+      public TrustAllSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+        super(null);
+        try {
+          SSLContext sslcontext=SSLContext.getInstance("TLS");
+          sslcontext.init(null,new TrustManager[]{new TrustAllManager()},null);
+          factory=sslcontext.getSocketFactory();
+          setHostnameVerifier(new AllowAllHostnameVerifier());  //super unsafe!
+        }
+      catch (  Exception ex) {}
+      }
+    </description>
+          <priority>2</priority>
+          <properties>
+            <property name="xpath">
+                  <value>//ClassOrInterfaceType[@Image='AllowAllHostnameVerifier']</value>
+            </property>
+          </properties>
+    </rule>
    
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+  <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Custom HostnameVerifier used; this is not safe for production use. Custom HostnameVerifiers may overlook certain protections which are applied by default to HTTPS libraries.
                   Make sure that this code is securely implemented. Read more: https://developer.android.com/training/articles/security-ssl.html#CommonHostnameProbs"
          name="CustomHostnameVerifier"
          typeResolution="true">
-      		<description>
-			tls = (StartTlsResponse) ctx.extendedOperation( new StartTlsRequest() );
-            		tls.setHostnameVerifier( hostnameVerifier ); //may lead to a potentially unsafe Verifier
-            		tls.negotiate( sslContext.getSocketFactory() )
-		</description>
-      		<priority>3</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>//PrimaryPrefix/Name[ends-with(@Image,'setHostnameVerifier')]</value>
-         		</property>
-      		</properties>
-   	</rule>
+          <description>
+      tls = (StartTlsResponse) ctx.extendedOperation( new StartTlsRequest() );
+                tls.setHostnameVerifier( hostnameVerifier ); //may lead to a potentially unsafe Verifier
+                tls.negotiate( sslContext.getSocketFactory() )
+    </description>
+          <priority>3</priority>
+          <properties>
+            <property name="xpath">
+                  <value>//PrimaryPrefix/Name[ends-with(@Image,'setHostnameVerifier')]</value>
+            </property>
+          </properties>
+    </rule>
    
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+  <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Custom SSLSocketFactory used. This is potentially dangerous, opening the user to man-in-the-middle-attacks which compromise data and privacy. Use the library defaults if
                   at all possible and consult API documentation to insecure the highest level of security. Read more: https://developer.android.com/training/articles/security-ssl.html"
          name="CustomSSLSocketFactory"
          typeResolution="true">
-      		<description>
-			SSLSocketFactory sf = new SSLSocketFactory(sslContext); //don't do this
-		</description>
-      		<priority>3</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>
-					//LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='SSLSocketFactory' ] and 
-					VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
-				</value>
-         		</property>
-      		</properties>
-   	</rule>
+          <description>
+      SSLSocketFactory sf = new SSLSocketFactory(sslContext); //don't do this
+    </description>
+          <priority>3</priority>
+          <properties>
+            <property name="xpath">
+                  <value>
+          //LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='SSLSocketFactory' ] and 
+          VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
+        </value>
+            </property>
+          </properties>
+    </rule>
 
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+  <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Custom trust manager used. This can compromise the security of HTTPS, allowing certificates which are invalid and thus giving man-in-the-middle machines the ability to 
                   intercept traffic between the user and server. Read more: https://developer.android.com/reference/javax/net/ssl/TrustManager.html"
          name="CustomTrustManager"
          typeResolution="true">
-      		<description>
-			TrustManager tm = new X509TrustManager() //Don't do this!
-		</description>
-     		<priority>2</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>
-					//LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='TrustManager' ] and 
-					VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
-				</value>
-         		</property>
-      		</properties>
-   	</rule>
+          <description>
+      TrustManager tm = new X509TrustManager() //Don't do this!
+    </description>
+        <priority>2</priority>
+          <properties>
+            <property name="xpath">
+                  <value>
+          //LocalVariableDeclaration[(Type/ReferenceType/ClassOrInterfaceType[@Image='TrustManager' ] and 
+          VariableDeclarator/VariableInitializer/Expression/PrimaryExpression/PrimaryPrefix/AllocationExpression)]
+        </value>
+            </property>
+          </properties>
+    </rule>
    
-	<rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
+  <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Try to shift services to use HTTPS. While this literal does not resolve to a website when entered as a URL, this connection can be made safer by moving servers and the 
                   applications which connect to them to an HTTPS Everywhere paradigm. HTTPS secures data from interception, sniffing, and surveillance of user data."
-         name="MoveToHTTP"
+         name="MoveToHTTPS"
          typeResolution="true">
-      		<description>
-			connect('http://www.google.com');
-		</description>
-      		<priority>5</priority>
-      		<properties>
-         		<property name="xpath">
-            			<value>
-					//Literal[contains(@Image,'http://')]
-				</value>
-         		</property>
-      		</properties>
-   	</rule>
+          <description>
+      connect('http://www.google.com');
+    </description>
+          <priority>5</priority>
+          <properties>
+            <property name="xpath">
+                  <value>
+          //Literal[contains(@Image,'http://')]
+        </value>
+            </property>
+          </properties>
+    </rule>
 
    <rule class="net.sourceforge.pmd.lang.java.rule.sunsecure.UseHTTPSWhenPossibleRule" deprecated="false" dfa="false"
          language="java"
@@ -183,16 +183,25 @@
             <properties>
                <property name="xpath">
                   <value>
-                    //CatchStatement
-                   [count(Block/BlockStatement) = 0]
-                   [FormalParameter/Type/ReferenceType
-                     /ClassOrInterfaceType[@Image='CertificateException' or @Image='CertPathValidatorException' 
-                     or @Image='SSLException' or  @Image='SSLHandshakeException' 
-                     or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
-                     or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
-                     or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
-                     or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
-                   ]
+                         //MethodDeclaration[(NameList/Name[@Image="CertificateException" or @Image='CertPathValidatorException' 
+                                       or @Image='SSLException' or  @Image='SSLHandshakeException' 
+                                       or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
+                                       or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
+                                       or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
+                                       or @Image='CertificateParsingException' or @Image='CertificateRevokedException'] '
+                                       and count(Block/BlockStatement) = 0 )
+                                       or 
+                                       //CatchStatement
+                                     [count(Block/BlockStatement) = 0]
+                                     [FormalParameter/Type/ReferenceType
+                                       /ClassOrInterfaceType[@Image='CertificateException' or @Image='CertPathValidatorException' 
+                                       or @Image='SSLException' or  @Image='SSLHandshakeException' 
+                                       or @Image='SSLKeyException' or @Image='SSLPeerUnverifiedException' 
+                                       or @Image='SSLProtocolException' or @Image='CertificateEncodingException' 
+                                       or @Image='CertificateExpiredException' or @Image='CertificateNotYetValidException'
+                                       or @Image='CertificateParsingException' or @Image='CertificateRevokedException']
+                                      ]
+                           ]
                   </value>
                </property>
             </properties>
@@ -225,6 +234,7 @@
                </property>
             </properties>
       </rule>
+
 
 
 </ruleset>
