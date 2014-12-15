@@ -109,19 +109,6 @@
       		</properties>
    	</rule>
 
-   <rule class="net.sourceforge.pmd.lang.java.rule.sunsecure.UseHTTPSWhenPossibleRule" deprecated="false" dfa="false"
-         language="java"
-         message="Use HTTPS when possible. This literal resolves to an address online when parsed as a URL. By changing the 'http' to 'https', the message will be encrypted as it travels
-                  to and from the server. HTTPS secures data from interception, sniffing, and surveillance of user data. If the application and server are configured properly, changing to HTTPS
-                  should not effect the functionality of this program."
-         name="HTTPSCouldBeUsed"         
-         typeResolution="true">
-            <description>
-         connect('http://www.google.com');
-      </description>
-            <priority>3</priority>
-      </rule>   
-
    <rule class="net.sourceforge.pmd.lang.rule.XPathRule" deprecated="false" dfa="false"
          language="java"
          message="Unsafe method SSL_set_verify_result used. This method overrides certificate checking in HTTPS, leaving the message vulnerable to interception and sniffing attacks. Avoid
